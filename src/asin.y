@@ -7,7 +7,11 @@
 #include "header.h"
 %}
 
-%token ID_ CTE_
+%union {
+	int cent;
+}
+
+%token <cent> ID_ CTE_
 %token OPSUMA_ OPMULT_ OPDIV_ OPRES_ OPIGUAL_ OPMOD_
 %token OPMASIGUAL_ OPMENOSIGUAL_ OPPORIGUAL_ OPDIVIGUAL_
 %token OPINCR_ OPDECR_
@@ -72,19 +76,21 @@ expresionAditiva: expresionMultiplicativa
 expresionMultiplicativa: expresionUnaria
 | expresionMultiplicativa operadorMultiplicativo expresionUnaria
 ;
-expresionUnaria: expresionSufija
-| operadorUnario expresionUnaria
+expresionUnaria: expresionSufija { $$ = $1; }
+| operadorUnario expresionUnaria {
+	if ($1 ==)
+}
 | operadorIncremento ID_
 ;
-expresionSufija: APAR_ expresion CPAR_
-| ID_ operadorIncremento
-| ID_ ACOR_ expresion CCOR_
-| ID_
-| constante
+expresionSufija: APAR_ expresion CPAR_ { $$ = $2; }
+| ID_ operadorIncremento { $$ = $1 + $2; }
+| ID_ ACOR_ expresion CCOR_ { /*****/ }
+| ID_ { $$ = $1; }
+| constante { $$ = $1; }
 ;
-constante: TRUE_
-| FALSE_
-| CTE_
+constante: TRUE_ { $$ = 1; }
+| FALSE_ { $$ = 0; }
+| CTE_ { $$ = $1; }
 ;
 operadorAsignacion: OPIGUAL_
 | OPMASIGUAL_
@@ -114,8 +120,8 @@ operadorUnario: OPSUMA_
 | OPRES_
 | NOT_
 ;
-operadorIncremento: OPINCR_
-| OPDECR_
+operadorIncremento: OPINCR_ { $$ = 1; }
+| OPDECR_ { $$ = -1; }
 ;
 
 
