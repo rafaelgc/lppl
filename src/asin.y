@@ -5,13 +5,16 @@
 #include <stdio.h>
 #include <string.h>
 #include "header.h"
+#include "libtds.h"
 %}
 
 %union {
+	char* ident;
 	int cent;
 }
 
-%token <cent> ID_ CTE_
+%token <cent> CTE_
+%token <ident> ID_
 %token OPSUMA_ OPMULT_ OPDIV_ OPRES_ OPIGUAL_ OPMOD_
 %token OPMASIGUAL_ OPMENOSIGUAL_ OPPORIGUAL_ OPDIVIGUAL_
 %token OPINCR_ OPDECR_
@@ -20,7 +23,7 @@
 %token PUNCOM_ ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
 %token READ_ PRINT_ TRUE_ FALSE_
 %token IF_ ELSE_ FOR_
-
+%type <cent> tipoSimple
 %%
 
 programa: ALLA_ secuenciaSentencias CLLA_
@@ -31,12 +34,31 @@ secuenciaSentencias: sentencia
 sentencia: declaracion
 | instruccion
 ;
-declaracion: tipoSimple ID_ PUNCOM_
-| tipoSimple ID_ OPIGUAL_ constante PUNCOM_
-| tipoSimple ID_ ACOR_ CTE_ CCOR_ PUNCOM_
+declaracion: tipoSimple ID_ PUNCOM_ {
+	if (!insTSimpleTDS($2, $1, 0)) {
+		yyerror("La variable ya está declarada.");
+	}
+	mostrarTDS();
+}
+| tipoSimple ID_ OPIGUAL_ constante PUNCOM_ {
+	if (!insTSimpleTDS($2, $1, 0)) {
+		yyerror("La variable ya está declarada.");
+	}
+	mostrarTDS();
+}
+| tipoSimple ID_ ACOR_ CTE_ CCOR_ PUNCOM_ {
+	if ($4 <= 0) {
+		yyerror("La talla del array es incorrecta.");
+	}
+
+	if (!insTVectorTDS($2, T_ARRAY, 0, $1, $4)) {
+		yyerror("La array ya está declarado.");
+	}
+	mostrarTDS();
+}
 ;
-tipoSimple: INT_
-| BOOL_
+tipoSimple: INT_ { $$ = T_ENTERO; }
+| BOOL_ { $$ = T_LOGICO; }
 ;
 instruccion: ALLA_ listaInstrucciones CLLA_
 | instruccionEntradaSalida
@@ -74,23 +96,21 @@ expresionAditiva: expresionMultiplicativa
 | expresionAditiva operadorAditivo expresionMultiplicativa
 ;
 expresionMultiplicativa: expresionUnaria
-| expresionMultiplicativa operadorMultiplicativo expresionUnaria
+| expresionMultiplicativa operadorMultiplicativo expresionUnaria 
 ;
-expresionUnaria: expresionSufija { $$ = $1; }
-| operadorUnario expresionUnaria {
-	if ($1 ==)
-}
+expresionUnaria: expresionSufija
+| operadorUnario expresionUnaria
 | operadorIncremento ID_
 ;
-expresionSufija: APAR_ expresion CPAR_ { $$ = $2; }
-| ID_ operadorIncremento { $$ = $1 + $2; }
-| ID_ ACOR_ expresion CCOR_ { /*****/ }
-| ID_ { $$ = $1; }
-| constante { $$ = $1; }
+expresionSufija: APAR_ expresion CPAR_
+| ID_ operadorIncremento
+| ID_ ACOR_ expresion CCOR_
+| ID_
+| constante
 ;
-constante: TRUE_ { $$ = 1; }
-| FALSE_ { $$ = 0; }
-| CTE_ { $$ = $1; }
+constante: TRUE_
+| FALSE_
+| CTE_
 ;
 operadorAsignacion: OPIGUAL_
 | OPMASIGUAL_
@@ -113,15 +133,15 @@ operadorAditivo: OPSUMA_
 | OPRES_
 ;
 operadorMultiplicativo: OPMULT_
-| OPMOD_
-| OPDIV_
+| OPMOD_ 
+| OPDIV_ 
 ;
 operadorUnario: OPSUMA_
-| OPRES_
+| OPRES_ 
 | NOT_
 ;
-operadorIncremento: OPINCR_ { $$ = 1; }
-| OPDECR_ { $$ = -1; }
+operadorIncremento: OPINCR_
+| OPDECR_
 ;
 
 

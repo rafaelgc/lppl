@@ -78,7 +78,7 @@ print           { ECHO; return PRINT_; }
 "("             { ECHO; return APAR_; }
 ")"             { ECHO; return CPAR_; }
 
-{constante}     { ECHO; return CTE_; }
-{identificador} { ECHO; return ID_; }
+{constante}     { ECHO; yylval.cent = atoi(yytext); return CTE_; }
+{identificador} { ECHO; yylval.ident = strdup(yytext); return ID_; }
 .               {yyerror("Caracter desconocido");}
 %%

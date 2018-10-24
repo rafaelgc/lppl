@@ -45,8 +45,8 @@ extern int yydebug;
 # define YYTOKENTYPE
   enum yytokentype
   {
-    ID_ = 258,
-    CTE_ = 259,
+    CTE_ = 258,
+    ID_ = 259,
     OPSUMA_ = 260,
     OPMULT_ = 261,
     OPDIV_ = 262,
@@ -89,7 +89,18 @@ extern int yydebug;
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
-typedef int YYSTYPE;
+
+union YYSTYPE
+{
+#line 11 "src/asin.y" /* yacc.c:1909  */
+
+	char* ident;
+	int cent;
+
+#line 101 "asin.h" /* yacc.c:1909  */
+};
+
+typedef union YYSTYPE YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define YYSTYPE_IS_DECLARED 1
 #endif
