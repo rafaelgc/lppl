@@ -23,7 +23,7 @@
 %token PUNCOM_ ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
 %token READ_ PRINT_ TRUE_ FALSE_
 %token IF_ ELSE_ FOR_
-%type <cent> tipoSimple
+%type <cent> tipoSimple expresionSufija constante expresion operadorUnario expresionUnaria expresionMultiplicativa expresionAditiva expresionRelacional expresionIgualdad
 %%
 
 programa: ALLA_ secuenciaSentencias CLLA_
@@ -83,43 +83,95 @@ expresionOpcional: expresion
 | ID_ OPIGUAL_ expresion
 |
 ;
-expresion: expresionIgualdad
-| expresion operadorLogico expresionIgualdad
+expresion: expresionIgualdad { $$ = $1; }
+| expresion operadorLogico expresionIgualdad {
+    $$ = T_ERROR;
+    if($1 != $3) { yyerror("Expresiones de tipos distintos (En expresion)"); }
+    else { $$ = T_LOGICO; }
+}
 ;
-expresionIgualdad: expresionRelacional
-| expresionIgualdad operadorIgualdad expresionRelacional
+expresionIgualdad: expresionRelacional { $$ = $1; }
+| expresionIgualdad operadorIgualdad expresionRelacional {
+    $$ = T_ERROR;
+    if($1 != $3) { yyerror("Expresiones de tipos distintos (En expresionIgualdad)"); }
+    else { $$ = T_LOGICO; }
+}
 ;
-expresionRelacional: expresionAditiva
-| expresionRelacional operadorRelacional expresionAditiva
+expresionRelacional: expresionAditiva { $$ = $1; }
+| expresionRelacional operadorRelacional expresionAditiva {
+    $$ = T_ERROR;
+    if($1 != $3) { yyerror("Expresiones de tipos distintos. (En expresionRelacional)"); }
+    else if($1 == T_LOGICO) { yyerror("Los operandos tienen que ser enteros. (En expresionRelacional)"); }
+    else { $$ = T_LOGICO; }
+}
 ;
-expresionAditiva: expresionMultiplicativa
-| expresionAditiva operadorAditivo expresionMultiplicativa
+expresionAditiva: expresionMultiplicativa { $$ = $1; }
+| expresionAditiva operadorAditivo expresionMultiplicativa {
+    $$ = T_ERROR;
+    if($1 != $3) { yyerror("Expresiones de tipos distintos. (En expresionAditiva)"); }
+    else if($1 == T_LOGICO) { yyerror("Los operandos tienen que ser enteros. (En expresionAditiva)"); }
+    else { $$ = T_ENTERO; }
+}
 ;
-expresionMultiplicativa: expresionUnaria
-| expresionMultiplicativa operadorMultiplicativo expresionUnaria 
+expresionMultiplicativa: expresionUnaria { $$ = $1; }
+| expresionMultiplicativa operadorMultiplicativo expresionUnaria {
+    $$ = T_ERROR;
+    if($1 != $3) { yyerror("Expresiones de tipos distintos. (En expresionMultiplicativa)"); }
+    else if($1 == T_LOGICO) { yyerror("Los operandos tienen que ser enteros. (En expresionMultiplicativa)"); }
+    else { $$ = T_ENTERO; }
+}
 ;
-expresionUnaria: expresionSufija
-| operadorUnario expresionUnaria
-| operadorIncremento ID_
+expresionUnaria: expresionSufija { $$ = $1; }
+| operadorUnario expresionUnaria {
+    $$ = T_ERROR;
+    if ($1 != $2) { yyerror("Operador inadecuado para la expresion. (En expresionUnaria)"); }
+    else { $$ = $1; }
+}
+| operadorIncremento ID_ {
+    $$ = T_ERROR;
+    SIMB s = obtenerTDS($2);
+    if (s.tipo == T_ERROR) { yyerror("Identificador no declarado. (En expresionUnaria)"); }
+    else if (s.tipo != T_ENTERO) { yyerror("El tipo tiene que ser entero. (En expresionUnaria)"); }
+    else {
+        $$ = T_ENTERO;
+    }
+}
 ;
-expresionSufija: APAR_ expresion CPAR_
-| ID_ operadorIncremento
-| ID_ ACOR_ expresion CCOR_
-| ID_
-| constante
+expresionSufija: APAR_ expresion CPAR_ { $$ = $2; }
+| ID_ operadorIncremento { 
+     $$ = T_ERROR;
+     SIMB s = obtenerTDS($1);
+	 if(s.tipo == T_ERROR) { yyerror("Identificador no declarado. (En expresionSufija)"); }
+	 else if(s.tipo != T_ENTERO) { yyerror("Identificador no es de tipo entero. (En expresionSufija)"); }
+     else { $$ = s.tipo; }	
+ }
+| ID_ ACOR_ expresion CCOR_ { 
+     $$ = T_ERROR;
+     SIMB s = obtenerTDS($1);
+	 if(s.tipo == T_ERROR) { yyerror("Identificador no declarado. (En expresionSufija)"); }
+	 if($3 != T_ENTERO) { yyerror("Expresion no es de tipo entera. (En expresionSufija)"); }
+     else { $$ = s.telem; }	
+ }
+| ID_ { 
+    $$ = T_ERROR;
+    SIMB s = obtenerTDS($1);
+    if(s.tipo == T_ERROR) { yyerror("Identificador no declarado. (En expresionSufija)"); }
+    else { $$ = s.tipo; }
+}
+| constante { $$ = $1; }
 ;
-constante: TRUE_
-| FALSE_
-| CTE_
+constante: TRUE_ { $$ = T_LOGICO; }
+| FALSE_ { $$ = T_LOGICO; }
+| CTE_ { $$ = T_ENTERO; }
 ;
-operadorAsignacion: OPIGUAL_
+operadorAsignacion: OPIGUAL_ 
 | OPMASIGUAL_
 | OPMENOSIGUAL_
 | OPPORIGUAL_
 | OPDIVIGUAL_
 ;
-operadorLogico: AND_
-| OR_
+operadorLogico: AND_ 
+| OR_ 
 ;
 operadorIgualdad: IGUAL_
 | DISTINTO_
@@ -136,9 +188,9 @@ operadorMultiplicativo: OPMULT_
 | OPMOD_ 
 | OPDIV_ 
 ;
-operadorUnario: OPSUMA_
-| OPRES_ 
-| NOT_
+operadorUnario: OPSUMA_ { $$ = T_ENTERO; }
+| OPRES_ { $$ = T_ENTERO; }
+| NOT_ { $$ = T_LOGICO; }
 ;
 operadorIncremento: OPINCR_
 | OPDECR_
