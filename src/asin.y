@@ -23,7 +23,7 @@
 %token PUNCOM_ ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
 %token READ_ PRINT_ TRUE_ FALSE_
 %token IF_ ELSE_ FOR_
-%type <cent> tipoSimple expresionSufija constante expresion operadorUnario expresionUnaria expresionMultiplicativa expresionAditiva expresionRelacional expresionIgualdad
+%type <cent> tipoSimple expresionSufija constante expresion operadorUnario expresionUnaria expresionMultiplicativa expresionAditiva expresionRelacional expresionIgualdad instruccionAsignacion expresionOpcional instruccionSeleccion instruccionIteracion
 %%
 
 programa: ALLA_ secuenciaSentencias CLLA_
@@ -38,13 +38,13 @@ declaracion: tipoSimple ID_ PUNCOM_ {
 	if (!insTSimpleTDS($2, $1, 0)) {
 		yyerror("La variable ya está declarada.");
 	}
-	mostrarTDS();
+	//mostrarTDS();
 }
 | tipoSimple ID_ OPIGUAL_ constante PUNCOM_ {
 	if (!insTSimpleTDS($2, $1, 0)) {
 		yyerror("La variable ya está declarada.");
 	}
-	mostrarTDS();
+	//mostrarTDS();
 }
 | tipoSimple ID_ ACOR_ CTE_ CCOR_ PUNCOM_ {
 	if ($4 <= 0) {
@@ -54,7 +54,7 @@ declaracion: tipoSimple ID_ PUNCOM_ {
 	if (!insTVectorTDS($2, T_ARRAY, 0, $1, $4)) {
 		yyerror("La array ya está declarado.");
 	}
-	mostrarTDS();
+	//mostrarTDS();
 }
 ;
 tipoSimple: INT_ { $$ = T_ENTERO; }
@@ -69,21 +69,87 @@ instruccion: ALLA_ listaInstrucciones CLLA_
 listaInstrucciones: listaInstrucciones instruccion
 | 
 ;
-instruccionAsignacion: ID_ operadorAsignacion expresion PUNCOM_
-| ID_ ACOR_ expresion CCOR_ operadorAsignacion expresion PUNCOM_
+instruccionAsignacion: ID_ operadorAsignacion expresion PUNCOM_ {
+	$$ = T_ERROR;
+	if ($3 != T_ERROR) {
+		SIMB s = obtenerTDS($1);
+		if (s.tipo == T_ERROR) { yyerror("Identificador no declarado. (En instruccionAsignacion)"); }
+		else if (s.tipo != $3) { yyerror("El tipo de la variable y el de la expresión tienen que ser iguales. (En instruccionAsignacion)"); }
+		else {
+		    $$ = $3;
+		}
+	}
+}
+| ID_ ACOR_ expresion CCOR_ operadorAsignacion expresion PUNCOM_ {
+	$$ = T_ERROR;	
+	if ($3 != T_ERROR && $6 != T_ERROR) {
+		SIMB s = obtenerTDS($1);
+		if (s.tipo == T_ERROR) {
+			yyerror("Identificador no declarado. (En instruccionAsignacion)");
+		}
+		else if (s.tipo != T_ARRAY) {
+			yyerror("La variable no es un array. (En instruccionAsignacion)");
+		}
+		else if ($6 != s.telem){
+			yyerror("El tipo de los elementos del array y el tipo de la expresión son distintos. (En instruccionAsignacion)");
+		}
+		else if ($3 != T_ENTERO) {
+			yyerror("El índice del array tiene que ser un entero. (En instruccionAsignacion)");
+		}
+		else {
+			$$ = $6;
+		}
+	}
+}
 ;
-instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PUNCOM_
-| PRINT_ APAR_ expresion CPAR_ PUNCOM_
+instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PUNCOM_ {
+	///////$$ = T_ERROR;
+    SIMB s = obtenerTDS($3);
+    if (s.tipo == T_ERROR) { yyerror("Identificador no declarado. (En instruccionEntradaSalida)"); }
+	else if (s.tipo != T_ENTERO) { yyerror("La variable tiene que ser entera. (En instruccionEntradaSalida)"); }
+	
+}
+| PRINT_ APAR_ expresion CPAR_ PUNCOM_ {
+	if ($3 != T_ENTERO) {
+		yyerror("El tipo tiene que ser entero. (En instruccionEntradaSalida)");
+		///////// $$ = T_ERROR
+	}
+}
 ;
-instruccionSeleccion: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion
+instruccionSeleccion: IF_ APAR_ expresion CPAR_ instruccion ELSE_ instruccion {
+	if ($3 != T_ERROR) {	
+		if ($3 != T_LOGICO){
+			yyerror("El tipo tiene que ser lógico. (En instruccionSeleccion)");
+		}
+		else {
+			$$ = T_VACIO;
+		}
+	}
+}
 ;
-instruccionIteracion: FOR_ APAR_ expresionOpcional PUNCOM_ expresion PUNCOM_ expresionOpcional CPAR_ instruccion
+instruccionIteracion: FOR_ APAR_ expresionOpcional PUNCOM_ expresion {
+	if ($5 != T_LOGICO){
+		yyerror("El tipo tiene que ser lógico. (En instruccionIteracion)");
+	}
+	else {
+		$<cent>$ = T_VACIO;
+	}
+} PUNCOM_ expresionOpcional CPAR_ instruccion { $$ = T_VACIO; }
 ;
-expresionOpcional: expresion
-| ID_ OPIGUAL_ expresion
-|
+expresionOpcional: expresion { $$ = $1; }
+| ID_ operadorAsignacion expresion {
+	$$ = T_ERROR;
+    SIMB s = obtenerTDS($1);
+    if (s.tipo == T_ERROR) { yyerror("Identificador no declarado. (En expresionOpcional)"); }
+    else if (s.tipo != $3) { yyerror("El tipo de la variable y el de la expresión tienen que ser iguales. (En expresionOpcional)"); }
+    else {
+        $$ = $3;
+    }
+}
+| { $$ = T_VACIO; }
 ;
-expresion: expresionIgualdad { $$ = $1; }
+expresion: expresionIgualdad { 
+	/*if ($1 == T_ENTERO) { yyerror("ES ENTERO"); }*/ $$ = $1; }
 | expresion operadorLogico expresionIgualdad {
     $$ = T_ERROR;
     if($1 != $3) { yyerror("Expresiones de tipos distintos (En expresion)"); }
