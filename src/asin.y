@@ -38,13 +38,17 @@ declaracion: tipoSimple ID_ PUNCOM_ {
 	if (!insTSimpleTDS($2, $1, 0)) {
 		yyerror("La variable ya está declarada.");
 	}
-	//mostrarTDS();
+	else if (verTDS) {
+		mostrarTDS();
+	}
 }
 | tipoSimple ID_ OPIGUAL_ constante PUNCOM_ {
 	if (!insTSimpleTDS($2, $1, 0)) {
 		yyerror("La variable ya está declarada.");
 	}
-	//mostrarTDS();
+	else if (verTDS) {
+		mostrarTDS();
+	}
 }
 | tipoSimple ID_ ACOR_ CTE_ CCOR_ PUNCOM_ {
 	if ($4 <= 0) {
@@ -54,7 +58,9 @@ declaracion: tipoSimple ID_ PUNCOM_ {
 	if (!insTVectorTDS($2, T_ARRAY, 0, $1, $4)) {
 		yyerror("La array ya está declarado.");
 	}
-	//mostrarTDS();
+	else if (verTDS) {
+		mostrarTDS();
+	}
 }
 ;
 tipoSimple: INT_ { $$ = T_ENTERO; }

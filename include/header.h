@@ -16,6 +16,9 @@ extern char *yytext;
 /****************************************************** Funciones auxiliares */
 extern void yyerror(const char * msg) ;   /* Tratamiento de errores          */
 
+extern int verbosidad;
+extern int verTDS;
+
 #endif  /* _HEADER_H */
 /*****************************************************************************/
 /*****************************************************************************/

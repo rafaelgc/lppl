@@ -6,6 +6,9 @@
 #include <string.h>
 #include "header.h"
 #include "asin.h"
+
+void printLine();
+
 %}
 /*----------------------------------------------------------------------
   Dado que las funciones "input()" y "unput(c)" son costosas y no las
@@ -27,58 +30,64 @@ comentario "//".*
 identificador {letra}({letra}|{digito})*
 %%
 
-{delimitador}   { ECHO; }
-{comentario}	{ ECHO; }
+{delimitador}   { printLine(); }
+{comentario}	{ printLine(); }
 
-read            { ECHO; return READ_; }
-print           { ECHO; return PRINT_; }
+read            { printLine(); return READ_; }
+print           { printLine(); return PRINT_; }
 
-"if"            { ECHO; return IF_; }
-"else"          { ECHO; return ELSE_; }
-"for"           { ECHO; return FOR_; }
+"if"            { printLine(); return IF_; }
+"else"          { printLine(); return ELSE_; }
+"for"           { printLine(); return FOR_; }
 
-"int"           { ECHO; return INT_; }
-"bool"          { ECHO; return BOOL_; }
-"true"          { ECHO; return TRUE_; }
-"false"         { ECHO; return FALSE_; }
+"int"           { printLine(); return INT_; }
+"bool"          { printLine(); return BOOL_; }
+"true"          { printLine(); return TRUE_; }
+"false"         { printLine(); return FALSE_; }
 
-"++"            { ECHO; return OPINCR_; }
-"--"            { ECHO; return OPDECR_; }
-"+="            { ECHO; return OPMASIGUAL_; }
-"-="            { ECHO; return OPMENOSIGUAL_; }
-"*="            { ECHO; return OPPORIGUAL_; }
-"/="            { ECHO; return OPDIVIGUAL_; }
+"++"            { printLine(); return OPINCR_; }
+"--"            { printLine(); return OPDECR_; }
+"+="            { printLine(); return OPMASIGUAL_; }
+"-="            { printLine(); return OPMENOSIGUAL_; }
+"*="            { printLine(); return OPPORIGUAL_; }
+"/="            { printLine(); return OPDIVIGUAL_; }
 
-"+"             { ECHO; return OPSUMA_; }
-"-"             { ECHO; return OPRES_; }
-"!"             { ECHO; return NOT_; }
+"+"             { printLine(); return OPSUMA_; }
+"-"             { printLine(); return OPRES_; }
+"!"             { printLine(); return NOT_; }
 
-"="		{ ECHO; return OPIGUAL_; }
+"="				{ printLine(); return OPIGUAL_; }
 
-"*"             { ECHO; return OPMULT_; }
-"/"             { ECHO;return OPDIV_; }
-"%"             { ECHO;return OPMOD_; }
+"*"             { printLine(); return OPMULT_; }
+"/"             { printLine();return OPDIV_; }
+"%"             { printLine();return OPMOD_; }
 
-">"             { ECHO; return MAY_; }
-"<"             { ECHO; return MEN_; }
-">="            { ECHO; return MAYIGUAL_; }
-"<="            { ECHO; return MENIGUAL_; }
-"=="            { ECHO; return IGUAL_; }
-"!="            { ECHO; return DISTINTO_; }
+">"             { printLine(); return MAY_; }
+"<"             { printLine(); return MEN_; }
+">="            { printLine(); return MAYIGUAL_; }
+"<="            { printLine(); return MENIGUAL_; }
+"=="            { printLine(); return IGUAL_; }
+"!="            { printLine(); return DISTINTO_; }
 
-"&&"             { ECHO; return AND_; }
-"||"             { ECHO; return OR_; }
+"&&"             { printLine(); return AND_; }
+"||"             { printLine(); return OR_; }
 
-";"             { ECHO; return PUNCOM_; }
+";"             { printLine(); return PUNCOM_; }
 
-"{"             { ECHO; return ALLA_; }
-"}"             { ECHO; return CLLA_; }
-"["             { ECHO; return ACOR_; }
-"]"             { ECHO; return CCOR_; }
-"("             { ECHO; return APAR_; }
-")"             { ECHO; return CPAR_; }
+"{"             { printLine(); return ALLA_; }
+"}"             { printLine(); return CLLA_; }
+"["             { printLine(); return ACOR_; }
+"]"             { printLine(); return CCOR_; }
+"("             { printLine(); return APAR_; }
+")"             { printLine(); return CPAR_; }
 
-{constante}     { ECHO; yylval.cent = atoi(yytext); return CTE_; }
-{identificador} { ECHO; yylval.ident = strdup(yytext); return ID_; }
+{constante}     { printLine(); yylval.cent = atoi(yytext); return CTE_; }
+{identificador} { printLine(); yylval.ident = strdup(yytext); return ID_; }
 .               {yyerror("Caracter desconocido");}
 %%
+
+void printLine() {
+	if (verbosidad) {
+		ECHO;
+	}
+}
