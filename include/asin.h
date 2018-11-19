@@ -92,12 +92,13 @@ extern int yydebug;
 
 union YYSTYPE
 {
-#line 11 "src/asin.y" /* yacc.c:1909  */
+#line 12 "src/asin.y" /* yacc.c:1909  */
 
 	char* ident;
 	int cent;
+	EXPRE expre;
 
-#line 101 "asin.h" /* yacc.c:1909  */
+#line 102 "asin.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

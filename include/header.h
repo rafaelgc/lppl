@@ -19,6 +19,17 @@ extern void yyerror(const char * msg) ;   /* Tratamiento de errores          */
 extern int verbosidad;
 extern int verTDS;
 
+/************************************** Tallas asociadas a los tipos simples */
+#define TALLA_TIPO_SIMPLE 1
+
+/***************************** Variables externas definidas en las librerías */
+extern int dvar;
+
+typedef struct expre {
+	int tipo;
+	int pos;
+} EXPRE;
+
 #endif  /* _HEADER_H */
 /*****************************************************************************/
 /*****************************************************************************/
