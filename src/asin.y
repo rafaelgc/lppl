@@ -25,8 +25,8 @@
 %token PUNCOM_ ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
 %token READ_ PRINT_ TRUE_ FALSE_
 %token IF_ ELSE_ FOR_
-%type <cent> tipoSimple constante operadorUnario operadorAditivo operadorIgualdad operadorRelacional operadorMultiplicativo
-%type <expre> expresionSufija  expresion  expresionUnaria expresionMultiplicativa expresionAditiva expresionRelacional expresionIgualdad instruccionAsignacion expresionOpcional instruccionSeleccion instruccionIteracion
+%type <cent> tipoSimple operadorUnario operadorAditivo operadorIgualdad operadorRelacional operadorMultiplicativo operadorAsignacion
+%type <expre> expresionSufija  expresion  expresionUnaria expresionMultiplicativa expresionAditiva expresionRelacional expresionIgualdad instruccionAsignacion expresionOpcional instruccionSeleccion instruccionIteracion constante
 %%
 
 programa: ALLA_ secuenciaSentencias CLLA_
@@ -41,18 +41,18 @@ declaracion: tipoSimple ID_ PUNCOM_ {
 	if (!insTSimpleTDS($2, $1, dvar)) {
 		yyerror("La variable ya está declarada.");
 	}
-	else if (verTDS) {
+	else {
+		if (verTDS) mostrarTDS();
 		dvar += TALLA_TIPO_SIMPLE;
-		mostrarTDS();
 	}
 }
 | tipoSimple ID_ OPIGUAL_ constante PUNCOM_ {
 	if (!insTSimpleTDS($2, $1, dvar)) {
 		yyerror("La variable ya está declarada.");
 	}
-	else if (verTDS) {
+	else {
+		if (verTDS) mostrarTDS();
 		dvar += TALLA_TIPO_SIMPLE;
-		mostrarTDS();
 	}
 }
 | tipoSimple ID_ ACOR_ CTE_ CCOR_ PUNCOM_ {
@@ -89,6 +89,23 @@ instruccionAsignacion: ID_ operadorAsignacion expresion PUNCOM_ {
 		else if (s.tipo != $3.tipo) { yyerror("El tipo de la variable y el de la expresión tienen que ser iguales. (En instruccionAsignacion)"); }
 		else {
 		    $$.tipo = $3.tipo;
+						
+			emite(EASIG, crArgPos($3.pos),crArgNul(),crArgPos($$.pos));
+			if ($2 == OPIGUAL_) {			
+				//emite(EASIG, crArgPos($3.pos), crArgNul(), crArgPos(s.desp));
+			}
+			else if ($2 == OPMASIGUAL_) {
+				emite(ESUM, crArgPos(s.desp), crArgPos($3.pos), crArgPos(s.desp));
+			}
+			else if ($2 == OPMENOSIGUAL_) {
+				emite(EDIF, crArgPos(s.desp), crArgPos($3.pos), crArgPos(s.desp));
+			}
+			else if ($2 == OPPORIGUAL_) {
+				emite(EMULT, crArgPos(s.desp), crArgPos($3.pos), crArgPos(s.desp));
+			}
+			else if ($2 == OPDIVIGUAL_) {
+				emite(EDIVI, crArgPos(s.desp), crArgPos($3.pos), crArgPos(s.desp));
+			}
 		}
 	}
 }
@@ -124,7 +141,9 @@ instruccionEntradaSalida: READ_ APAR_ ID_ CPAR_ PUNCOM_ {
 | PRINT_ APAR_ expresion CPAR_ PUNCOM_ {
 	if ($3.tipo != T_ENTERO) {
 		yyerror("El tipo tiene que ser entero. (En instruccionEntradaSalida)");
-		///////// $$ = T_ERROR
+	}
+	else {
+		emite(EWRITE, crArgNul(), crArgNul(), crArgPos($3.pos));
 	}
 }
 ;
@@ -235,17 +254,34 @@ expresionSufija: APAR_ expresion CPAR_ { $$ = $2; }
     if(s.tipo == T_ERROR) { yyerror("Identificador no declarado. (En expresionSufija)"); }
     else { $$.tipo = s.tipo; }
 }
-| constante { $$.tipo = $1; }
+| constante {
+	$$ = $1;	
+	//$$.tipo = $1;
+	//$$.pos = creaVarTemp();
+	//emite(EASIG, crArgEnt($1), crArgNul(), crArgPos($$.pos));
+}
 ;
-constante: TRUE_ { $$ = T_LOGICO; }
-| FALSE_ { $$ = T_LOGICO; }
-| CTE_ { $$ = T_ENTERO; }
+constante: TRUE_ {
+	$$.tipo = T_LOGICO;
+	$$.pos = creaVarTemp();
+	emite(EASIG, crArgEnt(TRUE), crArgNul(), crArgPos($$.pos));
+}
+| FALSE_ {
+	$$.tipo = T_LOGICO;
+	$$.pos = creaVarTemp();
+	emite(EASIG, crArgEnt(FALSE), crArgNul(), crArgPos($$.pos));
+}
+| CTE_ {
+	$$.tipo = T_ENTERO;
+	$$.pos = creaVarTemp();
+	emite(EASIG, crArgEnt(yylval.cent), crArgNul(), crArgPos($$.pos));
+}
 ;
-operadorAsignacion: OPIGUAL_ 
-| OPMASIGUAL_
-| OPMENOSIGUAL_
-| OPPORIGUAL_
-| OPDIVIGUAL_
+operadorAsignacion: OPIGUAL_ { $$ = OPIGUAL_; }
+| OPMASIGUAL_ { $$ = OPMASIGUAL_; }
+| OPMENOSIGUAL_ { $$ = OPMENOSIGUAL_; }
+| OPPORIGUAL_ { $$ = OPPORIGUAL_; }
+| OPDIVIGUAL_ { $$ = OPDIVIGUAL_ ; }
 ;
 operadorLogico: AND_ 
 | OR_ 
