@@ -25,7 +25,7 @@
 %token PUNCOM_ ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
 %token READ_ PRINT_ TRUE_ FALSE_
 %token IF_ ELSE_ FOR_
-%type <cent> tipoSimple operadorUnario operadorAditivo operadorIgualdad operadorRelacional operadorMultiplicativo operadorAsignacion
+%type <cent> tipoSimple operadorUnario operadorAditivo operadorIgualdad operadorRelacional operadorMultiplicativo operadorAsignacion operadorIncremento
 %type <expre> expresionSufija  expresion  expresionUnaria expresionMultiplicativa expresionAditiva expresionRelacional expresionIgualdad instruccionAsignacion expresionOpcional instruccionSeleccion instruccionIteracion constante
 %%
 
@@ -186,14 +186,30 @@ instruccion ELSE_ {
 	completaLans($<cent>8, crArgEtq(si));
 }
 ;
-instruccionIteracion: FOR_ APAR_ expresionOpcional PUNCOM_ expresion {
-	if ($5.tipo != T_LOGICO){
+instruccionIteracion: FOR_ APAR_ expresionOpcional PUNCOM_ {
+	$<cent>$ = si;
+} expresion {
+	if ($6.tipo != T_LOGICO){
 		yyerror("El tipo tiene que ser lógico. (En instruccionIteracion)");
 	}
 	else {
 		$<expre>$.tipo = T_VACIO;
+        $<expre>$.pos = creaLans(si);
+        emite(EIGUAL, crArgPos($6.pos), crArgEnt(0), crArgEtq(-1));
+        $<expre>$.instruccionesFor = creaLans(si);
+        emite(GOTOS, crArgNul(), crArgNul(), crArgEtq(-1));
 	}
-} PUNCOM_ expresionOpcional CPAR_ instruccion { $$.tipo = T_VACIO; }
+} PUNCOM_ {
+    $<cent>$ = si;
+} expresionOpcional {
+    emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<cent>5));
+} CPAR_ {
+    completaLans($<expre>7.instruccionesFor, crArgEtq(si));
+} instruccion {
+    $$.tipo = T_VACIO;
+    emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<cent>9));
+    completaLans($<expre>7.pos, crArgEtq(si));
+}
 ;
 expresionOpcional: expresion { $$ = $1; }
 | ID_ operadorAsignacion expresion {
@@ -203,6 +219,22 @@ expresionOpcional: expresion { $$ = $1; }
     else if (s.tipo != $3.tipo) { yyerror("El tipo de la variable y el de la expresión tienen que ser iguales. (En expresionOpcional)"); }
     else {
         $$.tipo = $3.tipo;
+
+        if ($2 == OPIGUAL_) {
+			emite(EASIG, crArgPos($3.pos),crArgNul(),crArgPos(s.desp));
+		}
+		else if ($2 == OPMASIGUAL_) {
+			emite(ESUM, crArgPos(s.desp), crArgPos($3.pos), crArgPos(s.desp));
+		}
+		else if ($2 == OPMENOSIGUAL_) {
+			emite(EDIF, crArgPos(s.desp), crArgPos($3.pos), crArgPos(s.desp));
+		}
+		else if ($2 == OPPORIGUAL_) {
+			emite(EMULT, crArgPos(s.desp), crArgPos($3.pos), crArgPos(s.desp));
+		}
+		else if ($2 == OPDIVIGUAL_) {
+			emite(EDIVI, crArgPos(s.desp), crArgPos($3.pos), crArgPos(s.desp));
+		}
     }
 }
 | { $$.tipo = T_VACIO; }
@@ -271,6 +303,8 @@ expresionUnaria: expresionSufija { $$ = $1; }
     else if (s.tipo != T_ENTERO) { yyerror("El tipo tiene que ser entero. (En expresionUnaria)"); }
     else {
         $$.tipo = T_ENTERO;
+        $$.pos = s.desp;
+        emite($1, crArgPos(s.desp), crArgEnt(1), crArgPos(s.desp));
     }
 }
 ;
@@ -280,7 +314,11 @@ expresionSufija: APAR_ expresion CPAR_ { $$ = $2; }
      SIMB s = obtenerTDS($1);
 	 if(s.tipo == T_ERROR) { yyerror("Identificador no declarado. (En expresionSufija)"); }
 	 else if(s.tipo != T_ENTERO) { yyerror("Identificador no es de tipo entero. (En expresionSufija)"); }
-     else { $$.tipo = s.tipo; }	
+     else { 
+        $$.tipo = s.tipo;
+        $$.pos = s.desp; 
+        emite($2, crArgPos(s.desp), crArgEnt(1), crArgPos(s.desp));
+}	
  }
 | ID_ ACOR_ expresion CCOR_ { 
      $$.tipo = T_ERROR;
@@ -346,8 +384,8 @@ operadorUnario: OPSUMA_ { $$ = T_ENTERO; }
 | OPRES_ { $$ = T_ENTERO; }
 | NOT_ { $$ = T_LOGICO; }
 ;
-operadorIncremento: OPINCR_
-| OPDECR_
+operadorIncremento: OPINCR_ { $$ = ESUM; }
+| OPDECR_ { $$ = EDIF; }
 ;
 
 

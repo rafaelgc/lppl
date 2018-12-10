@@ -28,6 +28,7 @@ extern int dvar;
 typedef struct expre {
 	int tipo;
 	int pos;
+	int instruccionesFor; // se usa solo para el for
 } EXPRE;
 
 #endif  /* _HEADER_H */
