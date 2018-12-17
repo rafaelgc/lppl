@@ -25,9 +25,9 @@ void printLine();
 delimitador     [ \t\n]+
 letra [a-zA-Z]
 digito          [0-9]
-constante       {digito}+
+constante       (\+|\-)?{digito}+
 comentario "//".*
-identificador {letra}({letra}|{digito})*
+identificador {letra}({letra}|{digito}|_)*
 %%
 
 {delimitador}   { printLine(); }
