@@ -1,0 +1,15 @@
+  0 EASIG     i:   0  ,          ,  p:   0  
+  1 EASIG     p:   0  ,          ,  p:   1  
+  2 EASIG     i:   0  ,          ,  p:   2  
+  3 EASIG     p:   2  ,          ,  p:   1  
+  4 EASIG     i:   5  ,          ,  p:   3  
+  5 EASIG     i:   1  ,          ,  p:   4  
+  6 EMEN      p:   1  ,  p:   3  ,  e:   8  
+  7 EASIG     i:   0  ,          ,  p:   4  
+  8 EIGUAL    p:   4  ,  i:   0  ,  e:  15  
+  9 GOTOS             ,          ,  e:  13  
+ 10 EASIG     i:   1  ,          ,  p:   5  
+ 11 ESUM      p:   1  ,  p:   5  ,  p:   1  
+ 12 GOTOS             ,          ,  e:   4  
+ 13 EWRITE            ,          ,  p:   1  
+ 14 GOTOS             ,          ,  e:  10  

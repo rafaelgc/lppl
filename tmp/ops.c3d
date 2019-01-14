@@ -1,0 +1,11 @@
+  0 EASIG     i:   3  ,          ,  p:   5  
+  1 EASIG     i: 255  ,          ,  p:   6  
+  2 EVA       p:   0  ,  p:   5  ,  p:   6  
+  3 EASIG     i:   3  ,          ,  p:   7  
+  4 EASIG     i:   5  ,          ,  p:   8  
+  5 EAV       p:   0  ,  p:   7  ,  p:   9  
+  6 EMULT     p:   9  ,  p:   8  ,  p:   9  
+  7 EVA       p:   0  ,  p:   7  ,  p:   9  
+  8 EASIG     i:   3  ,          ,  p:  10  
+  9 EAV       p:   0  ,  p:  10  ,  p:  11  
+ 10 EWRITE            ,          ,  p:  11  

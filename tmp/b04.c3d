@@ -1,0 +1,50 @@
+  0 EREAD             ,          ,  p:   0  
+  1 EASIG     i:   0  ,          ,  p:   9  
+  2 EASIG     p:   9  ,          ,  p:   8  
+  3 EASIG     p:   8  ,          ,  p:  10  
+  4 EASIG     i:   7  ,          ,  p:  11  
+  5 EASIG     i:   1  ,          ,  p:  12  
+  6 EMEN      p:  10  ,  p:  11  ,  e:   8  
+  7 EASIG     i:   0  ,          ,  p:  12  
+  8 EIGUAL    p:  12  ,  i:   0  ,  e:  22  
+  9 GOTOS             ,          ,  e:  13  
+ 10 EASIG     p:   8  ,          ,  p:  13  
+ 11 ESUM      p:   8  ,  i:   1  ,  p:   8  
+ 12 GOTOS             ,          ,  e:   3  
+ 13 EASIG     p:   8  ,          ,  p:  14  
+ 14 EASIG     p:   0  ,          ,  p:  15  
+ 15 EASIG     i:   0  ,          ,  p:  16  
+ 16 EASIG     i:   1  ,          ,  p:  17  
+ 17 EMAY      p:  15  ,  p:  16  ,  e:  19  
+ 18 EASIG     i:   0  ,          ,  p:  17  
+ 19 EVA       p:   1  ,  p:  14  ,  p:  17  
+ 20 EREAD             ,          ,  p:   0  
+ 21 GOTOS             ,          ,  e:  10  
+ 22 EASIG     i:   0  ,          ,  p:  46  
+ 23 EASIG     p:  46  ,          ,  p:  45  
+ 24 EASIG     p:  45  ,          ,  p:  47  
+ 25 EASIG     i:  27  ,          ,  p:  48  
+ 26 EASIG     i:   1  ,          ,  p:  49  
+ 27 EMEN      p:  47  ,  p:  48  ,  e:  29  
+ 28 EASIG     i:   0  ,          ,  p:  49  
+ 29 EIGUAL    p:  49  ,  i:   0  ,  e:  38  
+ 30 GOTOS             ,          ,  e:  34  
+ 31 EASIG     i:   1  ,          ,  p:  50  
+ 32 ESUM      p:  45  ,  p:  50  ,  p:  45  
+ 33 GOTOS             ,          ,  e:  24  
+ 34 EASIG     p:  45  ,          ,  p:  51  
+ 35 EASIG     p:  45  ,          ,  p:  52  
+ 36 EVA       p:  18  ,  p:  51  ,  p:  52  
+ 37 GOTOS             ,          ,  e:  31  
+ 38 EASIG     i:   4  ,          ,  p:  55  
+ 39 EAV       p:  18  ,  p:  55  ,  p:  56  
+ 40 EASIG     p:  56  ,          ,  p:  53  
+ 41 EASIG     i:   4  ,          ,  p:  57  
+ 42 EAV       p:   1  ,  p:  57  ,  p:  58  
+ 43 EASIG     p:  53  ,          ,  p:  59  
+ 44 EASIG     i:   0  ,          ,  p:  60  
+ 45 EASIG     i:   1  ,          ,  p:  61  
+ 46 EMAY      p:  59  ,  p:  60  ,  e:  48  
+ 47 EASIG     i:   0  ,          ,  p:  61  
+ 48 EMULT     p:  58  ,  p:  61  ,  p:  62  
+ 49 EASIG     p:  62  ,          ,  p:  54  

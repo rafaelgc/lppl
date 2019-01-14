@@ -1,0 +1,6 @@
+// Ejemplo (sin sentido) con opeadores aritmeticos: 6 errores
+{
+  int i;            // El argumento del "read" debe ser "entero"
+  i = 5;
+}
+

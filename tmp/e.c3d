@@ -1,0 +1,11 @@
+  0 EREAD             ,          ,  p:   0  
+  1 EASIG     i:   5  ,          ,  p:   1  
+  2 EASIG     i:   1  ,          ,  p:   2  
+  3 EMAYEQ    p:   0  ,  p:   1  ,  e:   5  
+  4 EASIG     i:   0  ,          ,  p:   2  
+  5 EIGUAL    p:   2  ,  i:   0  ,  e:   9  
+  6 EASIG     i:   1  ,          ,  p:   3  
+  7 EWRITE            ,          ,  p:   3  
+  8 GOTOS             ,          ,  e:  11  
+  9 EASIG     i:   0  ,          ,  p:   4  
+ 10 EWRITE            ,          ,  p:   4  
