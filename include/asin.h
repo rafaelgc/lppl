@@ -83,7 +83,8 @@ extern int yydebug;
     FALSE_ = 293,
     IF_ = 294,
     ELSE_ = 295,
-    FOR_ = 296
+    FOR_ = 296,
+    EXCEPT_ = 297
   };
 #endif
 
@@ -98,7 +99,7 @@ union YYSTYPE
 	int cent;
 	EXPRE expre;
 
-#line 102 "asin.h" /* yacc.c:1909  */
+#line 103 "asin.h" /* yacc.c:1909  */
 };
 
 typedef union YYSTYPE YYSTYPE;

@@ -39,6 +39,7 @@ print           { printLine(); return PRINT_; }
 "if"            { printLine(); return IF_; }
 "else"          { printLine(); return ELSE_; }
 "for"           { printLine(); return FOR_; }
+"except"	{ printLine(); return EXCEPT_; } /* ************************************************************************* */
 
 "int"           { printLine(); return INT_; }
 "bool"          { printLine(); return BOOL_; }

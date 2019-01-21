@@ -24,7 +24,7 @@
 %token INT_ BOOL_
 %token PUNCOM_ ALLA_ CLLA_ APAR_ CPAR_ ACOR_ CCOR_
 %token READ_ PRINT_ TRUE_ FALSE_
-%token IF_ ELSE_ FOR_
+%token IF_ ELSE_ FOR_ EXCEPT_ /* ***************************************************************************************** */
 %type <cent> tipoSimple operadorUnario operadorAditivo operadorIgualdad operadorRelacional operadorMultiplicativo operadorAsignacion operadorIncremento operadorLogico
 %type <expre> expresionSufija  expresion  expresionUnaria expresionMultiplicativa expresionAditiva expresionRelacional expresionIgualdad instruccionAsignacion expresionOpcional instruccionSeleccion instruccionIteracion constante
 %%
@@ -183,15 +183,19 @@ instruccionIteracion: FOR_ APAR_ expresionOpcional PUNCOM_ {
 	else {
 		$<expre>$.tipo = T_VACIO;
         $<expre>$.pos = creaLans(si);
-        emite(EIGUAL, crArgPos($6.pos), crArgEnt(0), crArgEtq(-1));
+        emite(EIGUAL, crArgPos($6.pos), crArgEnt(0), crArgEtq(-1)); /* [esto sigue igual] Expr falsa, salgo del for. */
         $<expre>$.instruccionesFor = creaLans(si);
-        emite(GOTOS, crArgNul(), crArgNul(), crArgEtq(-1));
+        emite(GOTOS, crArgNul(), crArgNul(), crArgEtq(-1)); /* [esto sigue igual] Expr. verdadera, salto al cuerpo. */
 	}
 } PUNCOM_ {
     $<cent>$ = si;
 } expresionOpcional {
-    emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<cent>5));
-} CPAR_ {
+    /*emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<cent>5)); Ya no se quiere saltar desde aquí. */
+} PUNCOM_ EXCEPT_ expresion /* EXAMEN*/ CPAR_ {
+    /* EXAMEN */
+    emite(EIGUAL, crArgPos($14.pos), crArgEnt(0), crArgEtq($<cent>5)); /* false, evaluar exp1 */
+    emite(GOTOS, crArgNul(), crArgNul(), crArgEtq($<cent>9)); /* true, reevaluar expr opcional 2*/
+    /* FIN EXAMEN */
     if ($6.tipo == T_LOGICO) {
         completaLans($<expre>7.instruccionesFor, crArgEtq(si));
     }
